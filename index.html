@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ciferníky pre GTR 4</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; font: 16px/1.5 system-ui, sans-serif; background: #0b0f1a; color: #e6ecf5; }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 16px 48px; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  p.lead { color: #a9b6c9; margin: 0 0 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 20px; }
+  .card { background: #131a2a; border: 1px solid #23304a; border-radius: 16px; padding: 18px; text-align: center; }
+  .card h2 { font-size: 18px; margin: 4px 0 12px; }
+  .card img.preview { width: 180px; height: 180px; }
+  .qr { background: #fff; border-radius: 12px; padding: 10px; display: inline-block; margin-top: 12px; }
+  .qr svg { display: block; width: 210px; height: 210px; }
+  code { font-size: 11px; color: #8fa3bf; word-break: break-all; display: block; margin-top: 8px; }
+  a { color: #7fb7ff; }
+  ol { color: #c7d2e2; padding-left: 20px; }
+  .warn { background: #2a1f0e; border: 1px solid #5c4316; color: #f3d9a4; border-radius: 12px; padding: 12px 14px; margin: 20px 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ciferníky pre Amazfit GTR 4</h1>
+  <p class="lead">Čas, počasie, kroky, vzdialenosť, tep a stres. Naskenuj QR kód v aplikácii Zepp.</p>
+
+  <ol>
+    <li>V aplikácii Zepp: <b>Profil → Nastavenia → O aplikácii</b> a 7× ťukni na logo Zepp (zapne sa Režim vývojára).</li>
+    <li><b>Profil → Amazfit GTR 4 → Režim vývojára (Developer Mode) → Skenovať</b>.</li>
+    <li>Naskenuj QR kód ciferníka z tejto stránky (otvor ju na počítači alebo inom zariadení).</li>
+  </ol>
+
+  <div class="warn" id="localWarn" hidden>Táto stránka je otvorená zo súboru, nie z webu. QR kódy budú fungovať až po nahratí priečinka na verejnú adresu (napr. GitHub Pages).</div>
+
+  <div class="grid" id="grid"></div>
+</main>
+<script src="qrcode.js"></script>
+<script>
+  const FACES = [
+    { file: 'scifi-orbita.zpk', name: 'SciFi Orbita', img: 'scifi-orbita.png' },
+    { file: 'scifi-mesto.zpk', name: 'SciFi Mesto', img: 'scifi-mesto.png' },
+    { file: 'scifi-hud.zpk', name: 'SciFi HUD', img: 'scifi-hud.png' },
+    { file: 'retro-nixie.zpk', name: 'Retro Nixie', img: 'retro-nixie.png' },
+    { file: 'nixie-gold.zpk', name: 'Nixie Gold', img: 'nixie-gold.png' },
+  ];
+  // adresa priečinka bez "https://" (Zepp si ju prepíše na https)
+  const dir = location.pathname.replace(/[^/]*$/, '');
+  const base = location.host + dir;
+  if (location.protocol === 'file:' || !location.host) {
+    document.getElementById('localWarn').hidden = false;
+  }
+  const grid = document.getElementById('grid');
+  for (const f of FACES) {
+    const payload = 'zpkd1://' + base + f.file;
+    const qr = qrcode(0, 'M');
+    qr.addData(payload);
+    qr.make();
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      '<img class="preview" alt="" src="' + f.img + '">' +
+      '<h2>' + f.name + '</h2>' +
+      '<div class="qr">' + qr.createSvgTag({ cellSize: 4, margin: 2, scalable: true }) + '</div>' +
+      '<code>' + payload + '</code>' +
+      '<p><a href="' + f.file + '" download>Stiahnuť .zpk</a></p>';
+    card.querySelector('code').dataset.payload = payload;
+    grid.appendChild(card);
+  }
+</script>
+</body>
+</html>
